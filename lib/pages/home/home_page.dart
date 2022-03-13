@@ -15,9 +15,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   //Map<String,dynamic> foodMap = {};
   List<dynamic> data=[];
-  List<String> name = [];
-  List<int> price = [];
-  List<String> img = [];
+ final List<Map<String,dynamic>> _foodList = [];
+ /* List<int> price = [];
+  List<String> img = [];*/
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,44 +41,47 @@ class _HomePageState extends State<HomePage> {
             /*for(var i in  data)
               foodMap.addAll(data[i]);
               buildFoodList(),*/
-            Flexible(
+            Expanded(
               child: ListView.builder(
                   scrollDirection: Axis.vertical,
                   shrinkWrap: true,
-                  itemCount: data.length,
+                  itemCount:  _foodList.length,
                   physics: ScrollPhysics(),
-                  itemBuilder: (context, index) {
-                    var i = index;
-                    return buildFoodList(i);
-                  }
+                  itemBuilder: (context, index) => _buildListItem(context, index),
               ),
             )
-
         ],
       ),
     );
   }
 
-  Card buildFoodList(int i) {
+Widget _buildListItem(BuildContext context, int index) {
+  var foodItem = _foodList[index];
     return Card(
       elevation: 5.0,
-            child: Expanded(
+      clipBehavior: Clip.antiAliasWithSaveLayer,
+      margin: const EdgeInsets.all(8.0),
+            child: InkWell(
+              onTap: (){},
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Image.network(img.elementAt(i),width: 100,),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Column(
-                          children: [
-                            Text(name.elementAt(i),style: TextStyle(fontSize: 20,color: Colors.pink.shade500),),
-                            Text(price.elementAt(i).toString(),style: TextStyle(fontSize: 15,color: Colors.pink.shade200,),),
-                          ],
-                        ),
-                      ],
+                  Image.network(foodItem['image'],width: 100,),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(foodItem['name'],style: TextStyle(fontSize: 20,color: Colors.pink.shade500),),
+                              Text('${foodItem['price'].toString()} บาท',style: TextStyle(fontSize: 15,color: Colors.pink.shade200,),),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   )
                 ],
@@ -91,19 +94,20 @@ class _HomePageState extends State<HomePage> {
     var result = await http.get(url);  //await คือ การแปลงเป็น result.then()ให้
     print(result.body);
     var jj = jsonDecode(result.body); // decode เพื่อแปลงออกมาเป็นโครงสร้างในภาษา dart จะได้ List ของ Map
-    String status = jj['status']; //jj['ชื่อ key']
+    String status = jj['status']; //jj['ชื่อ key'] ,String ห้าม null
     String? msg = jj['message'];
-
+    data = jj['data'];
+    print('Status : $status , Message : $msg, Number of food : ${data.length}');//
     setState((){
-      data = jj['data'];
-      print('Status : $status , Message : $msg, Number of food : ${data.length}');//
-      Map<String,dynamic> ts={};
+
+      //Map<String,dynamic> ts={};
       for(var i in data){
-        ts = i;
+        /*ts = i;
        print('menu ${ts['name']} price ${ts['price']} img ${ts['image']}');
        name.add(ts['name']);
        price.add(ts['price']);
-       img.add(ts['image']);
+       img.add(ts['image']);*/
+        _foodList.add(i);
       }
 
     });
