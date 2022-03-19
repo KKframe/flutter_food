@@ -2,6 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_food/models/api_result.dart';
+import 'package:flutter_food/models/food_item.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -15,7 +17,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   //Map<String,dynamic> foodMap = {};
   List<dynamic> data=[];
- final List<Map<String,dynamic>> _foodList = [];
+  List<FoodItem> _foodList = [];
  /* List<int> price = [];
   List<String> img = [];*/
   @override
@@ -36,8 +38,6 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-          if(data.isNotEmpty)
-
             /*for(var i in  data)
               foodMap.addAll(data[i]);
               buildFoodList(),*/
@@ -66,7 +66,7 @@ Widget _buildListItem(BuildContext context, int index) {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Image.network(foodItem['image'],width: 100,),
+                  Image.network(foodItem.image,width: 100,),
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -76,8 +76,8 @@ Widget _buildListItem(BuildContext context, int index) {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(foodItem['name'],style: TextStyle(fontSize: 20,color: Colors.pink.shade500),),
-                              Text('${foodItem['price'].toString()} บาท',style: TextStyle(fontSize: 15,color: Colors.pink.shade200,),),
+                              Text(foodItem.name,style: TextStyle(fontSize: 20,color: Colors.pink.shade500),),
+                              Text('${foodItem.price.toString()} บาท',style: TextStyle(fontSize: 15,color: Colors.pink.shade200,),),
                             ],
                           ),
                         ],
@@ -94,21 +94,24 @@ Widget _buildListItem(BuildContext context, int index) {
     var result = await http.get(url);  //await คือ การแปลงเป็น result.then()ให้
     print(result.body);
     var jj = jsonDecode(result.body); // decode เพื่อแปลงออกมาเป็นโครงสร้างในภาษา dart จะได้ List ของ Map
-    String status = jj['status']; //jj['ชื่อ key'] ,String ห้าม null
+    /*String status = jj['status']; //jj['ชื่อ key'] ,String ห้าม null
     String? msg = jj['message'];
-    data = jj['data'];
-    print('Status : $status , Message : $msg, Number of food : ${data.length}');//
+    data = jj['data'];*/
+    var api_re = ApiResult.fromJson(jj);
+    print(api_re.status);
     setState((){
-
+        _foodList = api_re.data.map<FoodItem>((item) => FoodItem.fromJson(item)).toList();
       //Map<String,dynamic> ts={};
-      for(var i in data){
-        /*ts = i;
+     /* for(var i in api_re.data){
+        *//*ts = i;
        print('menu ${ts['name']} price ${ts['price']} img ${ts['image']}');
        name.add(ts['name']);
        price.add(ts['price']);
-       img.add(ts['image']);*/
-        _foodList.add(i);
-      }
+       img.add(ts['image']);*//*
+       var foodItem = FoodItem.fromJson(i);
+        _foodList.add(foodItem);
+      }*/
+
 
     });
 
