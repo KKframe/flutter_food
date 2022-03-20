@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_food/pages/home/home_page.dart';
 import 'package:http/http.dart' as http;
 
+import 'models/api_result.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -186,7 +188,7 @@ class _LoginPageState extends State<LoginPage> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: InkWell(
-        onTap: () {
+        onTap: () async {
           if (n == -1) {
             //print('Backspace');
             setState(() {
@@ -207,9 +209,9 @@ class _LoginPageState extends State<LoginPage> {
               });
             }
             if (input.length == PIN.length) {
-              _handleLogin();
+              var check = await _handleLogin();
               setState(() {
-               if (input.compareTo(PIN)!=0) {
+               if (!check) {
                   showDialog(
                       context: context,
                       barrierDismissible: false,
@@ -232,7 +234,7 @@ class _LoginPageState extends State<LoginPage> {
                 } else {
                   // ให้แทน NextPage ด้วยชื่อคลาสของหน้าที่ต้องการ
                   // navigate ไป
-                  Navigator.push(
+                  Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => HomePage()),
                   );
@@ -266,21 +268,23 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Future<void> _handleLogin() async {
+  Future<bool> _handleLogin() async {
     final url = Uri.parse('https://cpsu-test-api.herokuapp.com/login');
-    var result = await http.post(
+    var response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'pin': input}),
-    ); //await คือ การแปลงเป็น result.then()ให้
-    print(result.body);
-    /*var json = jsonDecode(result.body);
+      body: jsonEncode({'pin': input}), //{'pin': input} <-- this is MAP
+    ); //await คือ การแปลงเป็น response.then()ให้
+    print(response.body);
+
+    var json = jsonDecode(response.body);
         var api_re =  ApiResult.fromJson(json);
-        print(api_re);*/
+        //print(api_re);
+    return api_re.data;
 
 
-    //result.then((response) => print(response.body)); //(response) => print(response.body) คือ นิพจน์ฟังก์ชัน
-    //result.then(_handleResponse); //(response) => print(response.body) คือ นิพจน์ฟังก์ชัน
+    //response.then((response) => print(response.body)); //(response) => print(response.body) คือ นิพจน์ฟังก์ชัน
+    //response.then(_handleResponse); //(response) => print(response.body) คือ นิพจน์ฟังก์ชัน
 
     //var i =0;
     //Above code is 'Asynchronous programming'
